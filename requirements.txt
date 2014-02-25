@@ -1,4 +1,4 @@
-flask
-flask-mime
-peewee
-feedparser
+Flask==0.10.1
+flask-mime==0.1.0
+peewee==2.2.1
+feedparser==5.1.3
