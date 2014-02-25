@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import os
 
 from peewee import (
     PrimaryKeyField, ForeignKeyField, CharField, IntegerField, BooleanField,
@@ -12,7 +13,16 @@ database = SqliteDatabase(None, threadlocals=True)
 
 
 def open_database(filepath):
-    database.init(filepath)
+    if os.path.exists(filepath):
+        database.init(filepath)
+    else:
+        database.init(filepath)
+        create_table()
+
+
+def create_table():
+    Entry.create_table()
+    Feed.create_table()
 
 
 class BaseModel(Model):
@@ -64,13 +74,3 @@ class Entry(BaseModel):
             'is_disliked': self.is_disliked,
             'feed': self.feed.title
         }
-
-
-def init():
-    database.connect()
-    Entry.create_table()
-    Feed.create_table()
-
-
-if __name__ == '__main__':
-    init()
