@@ -1,0 +1,53 @@
+.entry_item {
+  background-color: #dffd29;
+  display: table;
+  height: 80px;
+  width: 100%;
+}
+
+.entry_item:nth-child(even) {
+  background-color: #b4cc28;
+}
+
+.entry_item-inner {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 0 40px 0 40px;
+}
+
+.entry_item-meta {
+  font-size: 10px;
+}
+
+.entry_item-readmark {
+  float: right;
+}
+
+.entry_item-readmark-mark {
+  /* draw triangle */
+  width: 0px;
+  height: 0px;
+  border-style: solid;
+  border-width: 30px 40px 0 0;
+
+  /* position */
+  margin: 50px 0 0 0;
+
+  cursor: pointer;
+}
+
+.entry_item .entry_item-readmark-mark {
+  border-color: transparent #CBE915 transparent transparent;
+}
+
+.entry_item:nth-child(even) .entry_item-readmark-mark {
+  border-color: transparent #A0B814 transparent transparent;
+}
+
+.entry_item-readmark-mark:hover {
+  border-color: transparent #a2a782 transparent transparent;
+}
+
+.entry_item:nth-child(even) .entry_item-readmark-mark:hover {
+  border-color: transparent #a2a782 transparent transparent;
+}

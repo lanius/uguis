@@ -1,0 +1,31 @@
+.menu_html {
+  height:100%;
+}
+
+.menu_body {
+  height:100%;
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+}
+
+.menu_handle {
+  height:100%;
+  float: left;
+  position: fixed;
+  width: 30px;
+  background-color: #333;
+  -webkit-box-shadow: inset -5px 0 5px #222;
+  -moz-box-shadow: inset -5px 0 5px #222;
+  box-shadow: inset -5px 0 5px #222;
+}
+
+.sidr {
+  font-family: HelveticaNeueW01-45Ligh, RodinPro-L, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+  webkit-box-shadow: inset 0 0 #222;
+  -moz-box-shadow: inset 0 0 #222;
+  box-shadow: inset 0 0 #222;
+}
+
+.menu_content {
+  height:100%;
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja" class="menu_html">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <title>Uguis</title>
+  </head>
+  <body class="menu_body">
+
+    <div id="sidr">
+      <ul id="menu-list">
+        <li id="menu-entry-top-priority"><a href="/entries/top">Top Priority</a></li>
+        <li id="menu-entry-all"><a href="/entries/all">All Entries</a></li>
+        <li id="menu-feed-setting"><a href="/feeds/settings">Feeds Settings</a></li>
+      </ul>
+    </div>
+    <div id="menu-handle" class="menu_handle"></div>
+
+    <div class="menu_content content_base">
+
+      <div id="entry-list-default">
+        <div data-bind="collection:$collection">
+
+          <!-- common children template for entry lists -->
+          <script id="entry-item-template" type="text/html">
+            <div class="entry_item">
+              <div class="entry_item-inner">
+                <div class="entry_item-meta">
+                  <span class="entry-item-feed">Feed Title</span>
+                  <span class="entry-item-date">yyyy/mm/dd</span>
+                  <span class="entry-item-like"><a href="#">like</a></span>
+                  <span class="entry-item-dislike"><a href="#">dislike</a></span>
+                </div>
+                <div class="entry-item-link"><a href="#">Entry Title</a></div>
+              </div>
+              <div class="entry-item-readmark entry_item-readmark">
+                <a href="#"><div class="entry_item-readmark-mark"></div></a>
+              </div>
+            </div>
+          </script>
+
+        </div>
+      </div>
+
+      <div id="entry-list-top">
+        <div data-bind="collection:$collection"></div>
+      </div>
+
+      <div id="entry-list-all">
+        <div data-bind="collection:$collection"></div>
+      </div>
+
+      <div id='feed-setting' class='feed_setting'>
+        <form id='feed-add-form' class="feed_add-form">
+          <input id="feed-input" type="text" placeholder="Feed URL" />
+          <input id="feed-add" type="submit" value="Add" />
+        </form>
+        <div id="feed-list" class="feed_list">
+          <div data-bind="collection:$collection">
+            <script id="feed-item-template" type="text/html">
+              <div class="feed-item feed_item">
+                <span class="feed-item-title feed_item-title"><a href="#">Feed Title</a></span>
+                <span class="feed-item-priority feed_item-priority"><input type="range" min="0" max="5" value="3" /></span>
+                <span class="feed-item-disable feed_item-disable"><a href="#">Disable</a></span>
+              </div>
+            </script>
+          </div>
+        </div>
+      </div><!-- / #feed-setting -->
+
+    </div>
+
+    <script src="/script.js"></script>
+
+  </body>
+</html>

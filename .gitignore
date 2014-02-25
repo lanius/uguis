@@ -1,0 +1,13 @@
+# Python
+*.py[co]
+
+# JavaScript
+static
+libs
+node_modules
+bower_components
+report
+
+# Data
+*.db
+*.log

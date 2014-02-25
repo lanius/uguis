@@ -1,0 +1,4 @@
+flask
+flask-mime
+peewee
+feedparser
