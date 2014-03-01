@@ -25,10 +25,10 @@ def get_entries_as_dict(count, offset, priority, order):
 
 def get_entries(count, offset, priority, order):
     order = getattr(Entry.created_date, order)()
-    return Entry.select().join(Feed).where(
+    return list(Entry.select().join(Feed).where(
         Feed.priority >= priority,
         Entry.is_read == False
-    ).order_by(order).offset(offset).limit(count)
+    ).order_by(order).offset(offset).limit(count))
 
 
 def read_entries(id_list):
@@ -50,7 +50,7 @@ def get_feeds_as_dict():
 
 
 def get_feeds():
-    return Feed.select().order_by(Feed.created_date.desc())
+    return list(Feed.select().order_by(Feed.created_date.desc()))
 
 
 def feed_exists(url):
