@@ -92,8 +92,7 @@ def filter_new_entries(entries):
 
 def add_an_entry(entry):
     # todo: user insert_many and where, when peewee versioned up
-    with database.transaction():
-        entry.save()
+    entry.save()
 
 
 # feed api for crawler
