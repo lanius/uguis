@@ -20,6 +20,10 @@ def open_database(filepath):
         create_table()
 
 
+def close_database():
+    database.close()
+
+
 def create_table():
     Entry.create_table()
     Feed.create_table()
