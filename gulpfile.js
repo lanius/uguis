@@ -14,9 +14,9 @@ var minifycss = require('gulp-minify-css');
 
 
 var dirs = {
-  src: 'src',
-  libs: 'libs', // temporary dir for concatenated bower libraries
-  dest: 'static'
+  src: 'webclient',
+  libs: 'building_libs', // temporary dir for concatenated bower libraries
+  dest: 'uguis/static'
 };
 
 var scripts = [
