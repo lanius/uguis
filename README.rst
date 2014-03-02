@@ -1,7 +1,7 @@
 Uguis
 =====
 
-RSS reader for me.
+An RSS reader for me.
 
 
 Concepts
@@ -17,12 +17,8 @@ Concepts
 Prerequisites
 -------------
 
-- Python >= 2.7
-- pip
-- Node.js >= 0.10.26
-- npm
-- gulp
-- bower
+- Python >= 2.7, pip
+- Node.js >= 0.10.26, npm, gulp, bower
 
 
 Install
