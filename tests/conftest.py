@@ -46,7 +46,7 @@ def _generate_entries(feeds):
 def pytest_configure(config):
     sys._path = sys.path
     PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.append(PROJECT_ROOT)
+    sys.path.append(os.path.join(PROJECT_ROOT, 'uguis'))
 
 
 def pytest_unconfigure(config):
