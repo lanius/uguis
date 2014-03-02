@@ -4,34 +4,38 @@ import argparse
 import time
 import traceback
 
+import logbook
+
 import operation as op
-import log
 
 
 # todo: database connection management
 
 
+logbook.set_datetime_format('local')
+logger = logbook.Logger('Crawler')
+
+
 class Crawler(object):
 
-    def __init__(self, interval, database, logfile, debug=False):
+    def __init__(self, interval, database, debug=False):
         self.interval = interval
         self.debug = debug
-        self.logger = log.get_logger(logfile, debug)
-        self.logger.info(
-            'crawler setup, interval:%d log:%s debug:%s',
-            interval, logfile, debug
-        )
 
         op.open_db(database)
-        self.logger.info('db opened:%s', database)
+
+        logger.info(
+            'crawler setup: interval {0}, db {1}, debug {2}',
+            interval, database, debug
+        )
 
     def process_feed(self, feed):
-        self.logger.debug('process feed %s', feed.title)
+        logger.debug('process feed: {0}', feed.title)
         entries = op.fetch_entries(feed)
-        self.logger.debug('%d entries fetched', len(entries))
+        logger.debug('{0} entries fetched', len(entries))
 
         if len(entries) == 0:
-            self.logger.warn('feed is empty %d %s', feed.id, feed.title)
+            logger.warn('feed is empty: {0} {1}', feed.id, feed.title)
 
         return op.filter_new_entries(entries)
 
@@ -42,22 +46,22 @@ class Crawler(object):
             for entry in entries:
                 op.add_an_entry(entry)
             num_fetched_entries += len(entries)
-        self.logger.info('%d entries fetched', num_fetched_entries)
+        logger.info('{0} entries fetched', num_fetched_entries)
 
     def loop(self):
         while True:
-            self.logger.info('crawling...')
+            logger.info('crawling...')
             self.crawl()
-            self.logger.info('sleep %d sec', self.interval)
+            logger.info('sleep {0} sec', self.interval)
             time.sleep(self.interval)
 
     def start(self):
-        self.logger.info('start crawling')
+        logger.info('start crawling')
         try:
             self.loop()
         except:
-            self.logger.error(traceback.format_exc())
-        self.logger.info('finish crawling')
+            logger.error(traceback.format_exc())
+        logger.info('finish crawling')
 
 
 def main():
@@ -68,8 +72,13 @@ def main():
     parser.add_argument('-d', '--debug', action='store_true')
     args = parser.parse_args()
 
-    crawler = Crawler(args.interval, args.database, args.logfile, args.debug)
-    crawler.start()
+    log_handler = logbook.RotatingFileHandler(
+        args.logfile,
+        level=logbook.DEBUG if args.debug else logbook.INFO
+    )
+    with log_handler.applicationbound():
+        crawler = Crawler(args.interval, args.database, args.debug)
+        crawler.start()
 
 
 if __name__ == '__main__':

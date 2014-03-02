@@ -8,10 +8,13 @@ import traceback
 from flask import Flask, request, render_template, g
 from flask_mime import Mime
 from werkzeug import SharedDataMiddleware
+import logbook
 
 import operation as op
-import log
 
+
+logbook.set_datetime_format('local')
+logger = logbook.Logger('WebApp')
 
 app = Flask(__name__)
 mimetype = Mime(app)
@@ -52,7 +55,7 @@ def get_entries():
 @app.route('/entries/read', methods=['POST'])
 def read_entries():
     id_list = json.loads(request.form['id_list'])
-    app.logger.info('read entries: %s', id_list)
+    logger.info('read entries: {0}', id_list)
     op.read_entries(id_list)
     return json.dumps({'message': 'ok'})
 
@@ -61,7 +64,7 @@ def read_entries():
 @app.route('/entries/<int:id>', methods=['PATCH'])
 def update_an_entry(id):
     changed = json.loads(request.data)
-    app.logger.info('update an entry: %d %s', id, changed)
+    logger.info('update an entry: {0} {1}', id, changed)
     op.update_an_entry(id, changed)
     return json.dumps(changed)
 
@@ -76,7 +79,7 @@ def get_feeds():
 @app.route('/feeds/', methods=['POST'])
 def add_a_feed():
     data = json.loads(request.data)
-    app.logger.info('add a feed: %s', id, data)
+    logger.info('add a feed: {0} {1}', id, data)
     feed = op.add_a_feed(data.get('url'))
     return json.dumps(feed)
 
@@ -85,45 +88,40 @@ def add_a_feed():
 @app.route('/feeds/<int:id>', methods=['PATCH'])
 def update_a_feed(id):
     changed = json.loads(request.data)
-    app.logger.info('update a feed: %d %s', id, changed)
+    logger.info('update a feed: {0} {1}', id, changed)
     op.update_a_feed(id, changed)
     return json.dumps(changed)
 
 
 @app.errorhandler(500)
 def handle_error(e):
-    app.logger.error(traceback.format_exc())
+    logger.error(traceback.format_exc())
     raise
 
 
 class WebApp(object):
 
-    def __init__(self, hostname, port, database, logfile, debug=False):
+    def __init__(self, hostname, port, database, debug=False):
         self.hostname = hostname
         self.port = port
         self.debug = debug
 
-        app.logger.addHandler(log.get_handler(logfile))
-        app.logger.setLevel(log.get_level(debug))
-
+        app.debug = debug
         app.secret_key = 'dummy_secret_key' if debug else os.urandom(24)
         app.wsgi_app = SharedDataMiddleware(
             app.wsgi_app,
             {'/': os.path.join(os.path.dirname(__file__), 'static')}
         )
 
-        self.app = app
+        op.open_db(database)
 
-        self.app.logger.info(
-            'crawler setup, hostname:%s port:%d log:%s debug:%s',
-            hostname, port, logfile, debug
+        logger.info(
+            'crawler setup: hostname {0}, port {1}, db {2}, debug {3}',
+            hostname, port, database, debug
         )
 
-        op.open_db(database)
-        self.app.logger.info('db opened:%s', database)
-
     def start(self):
-        app.logger.info('start webapp')
+        logger.info('start webapp')
         app.run(self.hostname, self.port)
 
 
@@ -136,10 +134,13 @@ def main():
     parser.add_argument('-d', '--debug', action='store_true')
     args = parser.parse_args()
 
-    webapp = WebApp(
-        args.hostname, args.port, args.database, args.logfile, args.debug
+    log_handler = logbook.RotatingFileHandler(
+        args.logfile,
+        level=logbook.DEBUG if args.debug else logbook.INFO
     )
-    webapp.start()
+    with log_handler.applicationbound():
+        webapp = WebApp(args.hostname, args.port, args.database, args.debug)
+        webapp.start()
 
 
 if __name__ == '__main__':
