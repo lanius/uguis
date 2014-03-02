@@ -62,7 +62,7 @@ class Crawler(object):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--interval', default=60 * 15)
+    parser.add_argument('--interval', default=60 * 15, type=float)
     parser.add_argument('--database', default='rss.db')
     parser.add_argument('--logfile', default='crawler.log')
     parser.add_argument('-d', '--debug', action='store_true')
