@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import datetime
 import time
 import traceback
 
@@ -10,10 +9,6 @@ import log
 
 
 # todo: database connection management
-
-
-def timestamp():
-    return datetime.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
 
 
 class Crawler(object):
