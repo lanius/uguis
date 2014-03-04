@@ -24,6 +24,8 @@ def get_entries_as_dict(count, offset, priority, order):
 
 
 def get_entries(count, offset, priority, order):
+    if count == 0:
+        return []
     order = getattr(Entry.created_date, order)()
     return list(Entry.select().join(Feed).where(
         Feed.priority >= priority,
