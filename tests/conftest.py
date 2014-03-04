@@ -17,7 +17,7 @@ def _generate_feeds():
             title='feed title {0}'.format(i),
             priority=random.randint(0, 5),
             is_disabled=random.choice([True, False])
-        ) for i in range(random.randint(10, 100))
+        ) for i in range(random.randint(0, 100))
     ]
     with db.transaction():
         for f in feeds:
@@ -35,7 +35,7 @@ def _generate_entries(feeds):
             title='entry title {0}'.format(i),
             is_read=random.choice([True, False]),
             feed=random.choice(feeds)
-        ) for i in range(random.randint(100, 1000))
+        ) for i in range(random.randint(0, 1000))
     ]
     with db.transaction():
         for e in entries:
