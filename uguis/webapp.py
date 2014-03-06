@@ -48,7 +48,9 @@ def get_entries():
     offset = request.args.get('offset', type=int, default=0)
     priority = request.args.get('priority', type=int, default=5)
     order = request.args.get('order', default='desc')
-    return json.dumps(op.get_entries_as_dict(count, offset, priority, order))
+    return json.dumps(
+        op.get_unread_entries_as_dict(count, offset, priority, order)
+    )
 
 
 @mimetype('application/json')
@@ -65,7 +67,7 @@ def read_entries():
 def update_an_entry(id):
     changed = json.loads(request.data)
     logger.info('update an entry: {0} {1}', id, changed)
-    op.update_an_entry(id, changed)
+    op.update_entry(id, changed)
     return json.dumps(changed)
 
 
@@ -80,7 +82,7 @@ def get_feeds():
 def add_a_feed():
     data = json.loads(request.data)
     logger.info('add a feed: {0} {1}', id, data)
-    feed = op.add_a_feed(data.get('url'))
+    feed = op.add_feed(data.get('url'))
     return json.dumps(feed)
 
 
@@ -89,7 +91,7 @@ def add_a_feed():
 def update_a_feed(id):
     changed = json.loads(request.data)
     logger.info('update a feed: {0} {1}', id, changed)
-    op.update_a_feed(id, changed)
+    op.update_feed(id, changed)
     return json.dumps(changed)
 
 

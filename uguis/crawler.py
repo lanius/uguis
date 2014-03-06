@@ -44,7 +44,7 @@ class Crawler(object):
         for feed in op.get_enabled_feeds():
             entries = self.process_feed(feed)
             for entry in entries:
-                op.add_an_entry(entry)
+                op.add_entry(entry)
             num_fetched_entries += len(entries)
         logger.info('{0} entries fetched', num_fetched_entries)
 

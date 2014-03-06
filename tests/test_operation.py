@@ -24,8 +24,11 @@ def model():
 @parametrize('count, offset, priority, order', [
     (10, 0, 0, 'asc')
 ])
-def test_get_entries_as_dict(operation, count, offset, priority, order):
-    dicts = operation.get_entries_as_dict(count, offset, priority, order)
+def test_get_unread_entries_as_dict(
+        operation, count, offset, priority, order):
+    dicts = operation.get_unread_entries_as_dict(
+        count, offset, priority, order
+    )
     assert all(map(lambda d: isinstance(d, dict), dicts))
 
 
@@ -36,8 +39,8 @@ def test_get_entries_as_dict(operation, count, offset, priority, order):
     (5, 0, 5, 'asc'),
     (5, 0, 0, 'desc')
 ])
-def test_get_entries(operation, model, count, offset, priority, order):
-    entries = operation.get_entries(count, offset, priority, order)
+def test_get_unread_entries(operation, model, count, offset, priority, order):
+    entries = operation.get_unread_entries(count, offset, priority, order)
 
     # count
     actual_num_entries = len(list(
@@ -52,7 +55,7 @@ def test_get_entries(operation, model, count, offset, priority, order):
         assert len(entries) == count
 
     # offset
-    entries_from_head = operation.get_entries(count, 0, priority, order)
+    entries_from_head = operation.get_unread_entries(count, 0, priority, order)
     offset_entries = entries_from_head[:offset]
     assert all(map(lambda e: e not in entries, offset_entries))
 
@@ -101,10 +104,10 @@ def test_read_entries(operation, model):
     ({'is_read': True, 'is_liked': True, 'is_disliked': True}),
     ({'is_read': False, 'is_liked': False, 'is_disliked': False})
 ])
-def test_update_an_entry(operation, model, changed):
+def test_update_entry(operation, model, changed):
     entry = model.Entry.select().first()
     if entry:
-        operation.update_an_entry(entry.id, changed)
+        operation.update_entry(entry.id, changed)
         assert all([
             getattr(
                 model.Entry.get(id=entry.id), k
@@ -141,11 +144,11 @@ def test_feed_exists(operation, model):
 
 
 @usefixtures('database')
-def test_add_a_feed(operation, model):
+def test_add_feed(operation, model):
     num_feeds = model.Feed.select().count()
     with mock.patch('feedparser.parse') as m:
         url = 'http://new.example.com/feed'
-        operation.add_a_feed(url)
+        operation.add_feed(url)
         assert m.call_args[0][0] == url
     assert model.Feed.select().count() == num_feeds + 1
 
@@ -155,9 +158,9 @@ def test_add_a_feed(operation, model):
     ({'priority': 0, 'is_disabled': True}),
     ({'priority': 5, 'is_disabled': False})
 ])
-def test_update_a_feed(operation, model, changed):
+def test_update_feed(operation, model, changed):
     feed = model.Feed.select().first()
-    operation.update_a_feed(feed.id, changed)
+    operation.update_feed(feed.id, changed)
     assert all([
         getattr(
             model.Feed.get(id=feed.id), k
@@ -217,11 +220,11 @@ def test_filter_new_entries(operation, model):
 
 
 @usefixtures('database')
-def test_add_an_entry(operation, model):
+def test_add_entry(operation, model):
     num_entries = model.Entry.select().count()
 
     feed = model.Feed.select().first()
-    operation.add_an_entry(model.Entry(
+    operation.add_entry(model.Entry(
         title='test',
         url='http://new.example.com/entry',
         feed=feed

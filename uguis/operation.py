@@ -17,13 +17,15 @@ def open_db(filepath):
 
 # entry api for web app
 
-def get_entries_as_dict(count, offset, priority, order):
+def get_unread_entries_as_dict(count, offset, priority, order):
     return [
-        e.to_dict() for e in get_entries(count, offset, priority, order)
+        e.to_dict() for e in get_unread_entries(
+            count, offset, priority, order
+        )
     ]
 
 
-def get_entries(count, offset, priority, order):
+def get_unread_entries(count, offset, priority, order):
     if count == 0:
         return []
     order = getattr(Entry.created_date, order)()
@@ -37,7 +39,7 @@ def read_entries(id_list):
     Entry.update(is_read=True).where(Entry.id << id_list).execute()
 
 
-def update_an_entry(id, changed):
+def update_entry(id, changed):
     e = Entry.get(id=id)
     for attr, value in changed.items():
         if attr in ['is_read', 'is_liked', 'is_disliked']:  # writable attr
@@ -59,7 +61,7 @@ def feed_exists(url):
     return Feed.select().where(Feed.url == url).exists()
 
 
-def add_a_feed(url):
+def add_feed(url):
     if feed_exists(url):
         raise Exception('feed already exists')  # todo: handle error
     feeddata = feedparser.parse(url)  # todo: handle error
@@ -67,7 +69,7 @@ def add_a_feed(url):
     return feed.to_dict()
 
 
-def update_a_feed(id, changed):
+def update_feed(id, changed):
     f = Feed.get(id=id)
     for attr, value in changed.items():
         if attr in ['priority', 'is_disabled']:  # writable attr
@@ -92,7 +94,7 @@ def filter_new_entries(entries):
     return list(ifilterfalse(entry_exists, entries))
 
 
-def add_an_entry(entry):
+def add_entry(entry):
     # todo: user insert_many and where, when peewee versioned up
     entry.save()
 
