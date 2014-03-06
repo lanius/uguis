@@ -5,7 +5,7 @@
     "gulp-util": "^2.2.14",
     "gulp-clean": "^0.2.4",
     "gulp-filter": "^0.3.0",
-    "gulp-flatten": "0.0.2",
+    "gulp-flatten": "^0.0.2",
     "gulp-concat": "^2.1.7",
     "gulp-bower-files": "^0.1.9",
     "gulp-uglify": "^0.2.1",
