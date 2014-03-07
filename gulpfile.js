@@ -1,16 +1,4 @@
 var gulp = require('gulp');
-var gutil = require('gulp-util');
-var clean = require('gulp-clean');
-var filter = require('gulp-filter');
-var flatten = require('gulp-flatten');
-var concat = require('gulp-concat');
-
-var bower = require('gulp-bower-files');
-var uglify = require('gulp-uglify');
-var jshint = require('gulp-jshint');
-var plato = require('gulp-plato');
-
-var minifycss = require('gulp-minify-css');
 
 
 var dirs = {
@@ -19,69 +7,87 @@ var dirs = {
   dest: 'uguis/static'
 };
 
-var scripts = [
-  'backbone.pubsub.js',
-  'menu.js',
-  'feed.js',
-  'entry.js',
-  'bootstrap.js'
-].map(function (name) { return dirs.src + '/' + name; });
+var srcnames = {
 
-var styles = [
-  'menu.css',
-  'content.css',
-  'feed.css',
-  'entry.css'
-].map(function (name) { return dirs.src + '/' + name; });
+  scripts: [
+    'backbone.pubsub.js',
+    'menu.js',
+    'feed.js',
+    'entry.js',
+    'bootstrap.js'
+  ].map(function (name) { return dirs.src + '/' + name; }),
 
-var filenames = {
-  libscript: 'libs.js', // temporary file
-  libstyle: 'libs.css', // temporary file
+  styles: [
+    'menu.css',
+    'content.css',
+    'feed.css',
+    'entry.css'
+  ].map(function (name) { return dirs.src + '/' + name; })
+
+};
+
+var destnames = {
+  scriptlib: 'libs.js', // temporary file
+  stylelib: 'libs.css', // temporary file
   script: 'script.js',
   style: 'style.css',
 };
 
 var deps = {
-  scripts: [].concat(dirs.libs + '/' + filenames.libscript, scripts),
-  styles: [].concat(dirs.libs + '/' + filenames.libstyle, styles)
+  scripts: [].concat(dirs.libs + '/' + destnames.scriptlib, srcnames.scripts),
+  styles: [].concat(dirs.libs + '/' + destnames.stylelib, srcnames.styles)
 };
 
 
-gulp.task('libscript', function () {
-  return bower()
-    .pipe(filter('**/*.js'))
-    .pipe(flatten())
-    .pipe(concat(filenames.libscript))
-    .pipe(gulp.dest(dirs.libs));
+
+var helpers = {
+
+  libs: function (pattern, destname) {
+    var bower = require('gulp-bower-files');
+    var filter = require('gulp-filter');
+    var flatten = require('gulp-flatten');
+    var concat = require('gulp-concat');
+    return bower()
+      .pipe(filter(pattern))
+      .pipe(flatten())
+      .pipe(concat(destname))
+      .pipe(gulp.dest(dirs.libs));
+  },
+
+  apps: function (srcfiles, destfile, minifyfunc) {
+    var gutil = require('gulp-util');
+    var concat = require('gulp-concat');
+    return gulp.src(srcfiles)
+      .pipe(gutil.env.debug ? gutil.noop(): minifyfunc())
+      .pipe(concat(destfile))
+      .pipe(gulp.dest(dirs.dest));
+  }
+
+};
+
+
+gulp.task('scriptlib', function () {
+  return helpers.libs('**/*.js', destnames.scriptlib);
 });
 
 
-gulp.task('libstyle', function () {
-  return bower()
-    .pipe(filter('**/*.css'))
-    .pipe(flatten())
-    .pipe(concat(filenames.libstyle))
-    .pipe(gulp.dest(dirs.libs));
+gulp.task('stylelib', function () {
+  return helpers.libs('**/*.css', destnames.stylelib);
 });
 
 
-gulp.task('script', ['libscript'], function () {
-  gulp.src(deps.scripts)
-    .pipe(gutil.env.debug ? gutil.noop(): uglify())
-    .pipe(concat(filenames.script))
-    .pipe(gulp.dest(dirs.dest));
+gulp.task('script', ['scriptlib'], function () {
+  helpers.apps(deps.scripts, destnames.script, require('gulp-uglify'));
 });
 
 
-gulp.task('style', ['libstyle'], function () {
-  gulp.src(deps.styles)
-    .pipe(gutil.env.debug ? gutil.noop(): minifycss())
-    .pipe(concat(filenames.style))
-    .pipe(gulp.dest(dirs.dest));
+gulp.task('style', ['stylelib'], function () {
+  helpers.apps(deps.styles, destnames.style, require('gulp-minify-css'));
 });
 
 
 gulp.task('clean', function () {
+  var clean = require('gulp-clean');
   gulp.src(dirs.libs)
     .pipe(clean());
   gulp.src(dirs.dest)
@@ -90,14 +96,16 @@ gulp.task('clean', function () {
 
 
 gulp.task('lint', function () {
-  gulp.src(scripts)
+  var jshint = require('gulp-jshint');
+  gulp.src(srcnames.scripts)
     .pipe(jshint())
     .pipe(jshint.reporter('default'));
 });
 
 
 gulp.task('report', function () {
-  gulp.src(scripts)
+  var plato = require('gulp-plato');
+  gulp.src(srcnames.scripts)
     .pipe(plato('report'));
 });
 
