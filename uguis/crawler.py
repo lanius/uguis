@@ -18,18 +18,14 @@ logger = logbook.Logger('Crawler')
 
 class Crawler(object):
 
-    def __init__(self, interval, database, debug=False):
-        self.interval = interval
+    def __init__(self, database, debug=False):
         self.debug = debug
-
+ 
         op.open_db(database)
+ 
+        logger.info('crawler setup: db {0}, debug {1}', database, debug)
 
-        logger.info(
-            'crawler setup: interval {0}, db {1}, debug {2}',
-            interval, database, debug
-        )
-
-    def process_feed(self, feed):
+    def _process_feed(self, feed):
         logger.debug('process feed: {0}', feed.title)
         entries = op.fetch_entries(feed)
         logger.debug('{0} entries fetched', len(entries))
@@ -42,30 +38,45 @@ class Crawler(object):
     def crawl(self):
         num_fetched_entries = 0
         for feed in op.get_enabled_feeds():
-            entries = self.process_feed(feed)
+            entries = self._process_feed(feed)
             for entry in entries:
                 op.add_entry(entry)
             num_fetched_entries += len(entries)
         logger.info('{0} entries fetched', num_fetched_entries)
 
-    def loop(self):
-        while True:
-            logger.info('crawling...')
-            self.crawl()
-            logger.info('sleep {0} sec', self.interval)
-            time.sleep(self.interval)
-
     def start(self):
         logger.info('start crawling')
         try:
-            self.loop()
+            self.crawl()
         except:
             logger.error(traceback.format_exc())
         logger.info('finish crawling')
 
 
+class LoopCrawler(Crawler):
+
+    def __init__(self, interval, database, debug=False):
+        self.interval = interval
+        self.debug = debug
+
+        op.open_db(database)
+
+        logger.info(
+            'crawler setup: interval {0}, db {1}, debug {2}',
+            interval, database, debug
+        )
+
+    def crawl(self):
+        while True:
+            logger.info('crawling...')
+            Crawler.crawl(self)
+            logger.info('sleep {0} sec', self.interval)
+            time.sleep(self.interval)
+
+
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--loop', action='store_true')
     parser.add_argument('--interval', default=60 * 30, type=float)
     parser.add_argument('--database', default='rss.db')
     parser.add_argument('--logfile', default='crawler.log')
@@ -77,7 +88,10 @@ def main():
         level=logbook.DEBUG if args.debug else logbook.INFO
     )
     with log_handler.applicationbound():
-        crawler = Crawler(args.interval, args.database, args.debug)
+        if args.loop:
+            crawler = LoopCrawler(args.interval, args.database, args.debug)
+        else:
+            crawler = Crawler(args.database, args.debug)
         crawler.start()
 
 
