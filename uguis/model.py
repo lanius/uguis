@@ -35,10 +35,9 @@ class BaseModel(Model):
 
 
 class Feed(BaseModel):
-    id = PrimaryKeyField()
+    id = PrimaryKeyField(index=True)
     url = CharField(index=True)
     title = CharField()
-    genre = CharField(default='other', index=True)
     priority = IntegerField(
         default=3, index=True,
         constraints=[Check('priority >= 0'), Check('priority <= 5')]
@@ -51,7 +50,6 @@ class Feed(BaseModel):
             'id': self.id,
             'url': self.url,
             'title': self.title,
-            'genre': self.genre,
             'priority': self.priority,
             'is_disabled': self.is_disabled,
         }
@@ -65,7 +63,7 @@ class Entry(BaseModel):
     is_read = BooleanField(default=False, index=True)
     is_liked = BooleanField(default=False, index=True)
     is_disliked = BooleanField(default=False, index=True)
-    feed = ForeignKeyField(Feed)
+    feed = ForeignKeyField(Feed, index=True)
 
     def to_dict(self):
         return {
