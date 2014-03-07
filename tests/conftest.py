@@ -2,9 +2,7 @@
 
 import os
 import random
-import shutil
 import sys
-import tempfile
 
 import pytest
 
@@ -63,12 +61,10 @@ def pytest_runtest_setup(item):
 @pytest.fixture()
 def database(request):
     from model import open_database, close_database
-    dirpath = tempfile.mkdtemp()
-    open_database(os.path.join(dirpath, 'testing.db'))
+    open_database(':memory:')
     feeds = _generate_feeds()
     _generate_entries(feeds)
 
     def fin():
         close_database()
-        shutil.rmtree(dirpath)
     request.addfinalizer(fin)
